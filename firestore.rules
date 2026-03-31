@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: internship_settings
+    // Document ID: global
+    // Fields:
+    //   - requirements: list (required, strings) - List of internship requirements
+    //   - formUrl: string (required, URL) - Google Form URL
+    //   - ownerEmail: string (optional, email) - Owner email
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.email == "likhithbellamkonda@gmail.com" && 
+              request.auth.token.email_verified == true);
+    }
+
+    function isValidSettings(data) {
+      return data.requirements is list &&
+             data.formUrl is string &&
+             data.formUrl.matches("^https://.*") &&
+             (!('ownerEmail' in data) || data.ownerEmail is string);
+    }
+
+    match /internship_settings/global {
+      // Anyone can read the settings to see requirements and form URL
+      allow read: if true;
+      
+      // Only the specific admin can update the settings
+      allow write: if isAdmin() && isValidSettings(request.resource.data);
+    }
+  }
+}
