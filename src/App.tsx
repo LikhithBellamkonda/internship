@@ -296,13 +296,25 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const handleLogin = async () => {
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Login failed", error);
-      showToast("Login failed. Please try again.", "error");
+    } catch (error: any) {
+      if (error.code === "auth/popup-closed-by-user") {
+        showToast("Login cancelled. Please complete the sign-in process.", "error");
+      } else if (error.code === "auth/cancelled-popup-request") {
+        // Ignore this one as it's usually a duplicate request
+      } else {
+        console.error("Login failed", error);
+        showToast("Login failed: " + (error.message || "Please try again."), "error");
+      }
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -439,9 +451,15 @@ export default function App() {
               ) : (
                 <button 
                   onClick={handleLogin}
-                  className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all shadow-md shadow-blue-200 active:scale-95"
+                  disabled={isLoggingIn}
+                  className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all shadow-md shadow-blue-200 active:scale-95 disabled:opacity-50"
                 >
-                  <LogIn size={18} /> Sign In
+                  {isLoggingIn ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <LogIn size={18} />
+                  )}
+                  {isLoggingIn ? "Signing In..." : "Sign In"}
                 </button>
               )}
             </div>
@@ -548,6 +566,24 @@ export default function App() {
                     </button>
                   </div>
                 </div>
+              ) : !user ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <p className="text-slate-500 text-sm flex items-center gap-2">
+                    <Lock size={16} /> Sign in to manage requirements
+                  </p>
+                  <button 
+                    onClick={handleLogin}
+                    disabled={isLoggingIn}
+                    className="px-6 py-2 bg-slate-800 text-white rounded-full font-semibold hover:bg-black transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isLoggingIn ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <LogIn size={18} />
+                    )}
+                    Sign In as Admin
+                  </button>
+                </div>
               ) : (
                 <div className="flex items-center gap-2 text-slate-400 text-sm justify-center">
                   <Info size={16} /> Sign in as admin to edit requirements
@@ -582,7 +618,7 @@ export default function App() {
                   <div className="flex gap-2">
                     <input 
                       type="text" 
-                      value={settings?.formUrl}
+                      value={settings?.formUrl || ""}
                       onChange={(e) => updateFormUrl(e.target.value)}
                       className="flex-1 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white transition-all"
                     />

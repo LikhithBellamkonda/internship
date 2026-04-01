@@ -1,10 +1,10 @@
 {
-  "projectId": "rapid-idiom-489507-q4",
-  "appId": "1:562888733026:web:8c5f0d2bd7313666763c3b",
-  "apiKey": "AIzaSyAsEsOk3bYyYMJM1VA6G4dZGWW4jHJFEV4",
-  "authDomain": "rapid-idiom-489507-q4.firebaseapp.com",
+  "projectId": "internship-application-492008",
+  "appId": "1:1018368387429:web:4233c18f3dcad9f2cf598c",
+  "apiKey": "AIzaSyAehaM_11pbwrGctgNBUdQJ7hyUhEDXvL0",
+  "authDomain": "internship-application-492008.firebaseapp.com",
   "firestoreDatabaseId": "ai-studio-641193c2-8b31-4f84-a1e9-89fbf92fc7da",
-  "storageBucket": "rapid-idiom-489507-q4.firebasestorage.app",
-  "messagingSenderId": "562888733026",
+  "storageBucket": "internship-application-492008.firebasestorage.app",
+  "messagingSenderId": "1018368387429",
   "measurementId": ""
 }
